@@ -1,0 +1,22 @@
+{
+    "name": "uraankhay/yii2-imgcropper",
+    "description": "Yii2 image cropper based on Croppr.js",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension","Croppr.js"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ayaal Kaplin",
+            "email": "uraankhayayaal@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0",
+        "bower-asset/croppr" : ">=2.3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "uraankhay\\imgcropper\\": ""
+        }
+    }
+}
