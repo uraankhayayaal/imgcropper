@@ -11,9 +11,8 @@ class Cropper extends \yii\base\Widget
 {
 	public $elementId = 'crop';
 
-	public $noPhotoImage = [];
+	public $noPhotoImage;
 
-	public $pluginOptions;
 	/*
 	 * Constrain the crop region to an aspect ratio.
 	 * Type: Number 
@@ -38,7 +37,7 @@ class Cropper extends \yii\base\Widget
 	 * Example: maxSize: [100, 100, 'px'] (Min width and height of 100px)
 	 * Note: unit accepts a value of 'px' or '%'. Defaults to 'px'.
 	 */
-	public $minSize = "[50, 50, 'px']";
+	public $minSize = [50, 50, 'px'];
 
 	/*
 	 * The starting size of the crop region when it is initialized.
@@ -47,7 +46,7 @@ class Cropper extends \yii\base\Widget
 	 * Example: startSize: [50, 50] (A starting crop region of 50% of the image size)
 	 * Note: unit accepts a value of 'px' or '%'. Defaults to '%'.
 	 */
-	public $startSize = "[100, 100, '%']";
+	public $startSize = [50, 50, '%'];
 
 	/*
 	 * A callback function that is called when the user starts modifying the crop region.
@@ -58,18 +57,18 @@ class Cropper extends \yii\base\Widget
 	 *		console.log(value.x, value.y, value.width, value.height);
 	 * }
 	 */
-	public $onCropStart;
+	public $onCropStart = "function(value) {console.log(value.x, value.y, value.width, value.height);}";
 
 	/*
 	 * A callback function that is called when the crop region changes.
 	 * Type: Function 
 	 * Arguments: value = {x, y, width, height}
 	 * Example: 
-	 * onUpdate: function(value) {
+	 * onCropStart: function(value) {
 	 *		console.log(value.x, value.y, value.width, value.height);
 	 * }
 	 */
-	public $onCropMove;
+	public $onCropMove = '(data) => { console.log("move", data); }';
 
 	/*
 	 * A callback function that is called when the user stops modifying the crop region.
@@ -80,7 +79,7 @@ class Cropper extends \yii\base\Widget
 	 *		console.log(value.x, value.y, value.width, value.height);
 	 * }
 	 */
-	public $onCropEnd;
+	public $onCropEnd = '(data) => { console.log("end", data); }';
 
 	/*
 	 * A callback function that is called when the Croppr instance is fully initialized.
@@ -91,7 +90,7 @@ class Cropper extends \yii\base\Widget
 	 *		// do things here
 	 * }
 	 */
-	public $onInitialize;
+	public $onInitialize = '(instance) => { console.log(instance); }';
 
 	/*
 	 * Define how the crop region should be calculated.
@@ -108,6 +107,7 @@ class Cropper extends \yii\base\Widget
         $this->registerClientAssets();
 
         return $this->render('index', [
+        	'elementId' => $this->elementId,
         ]);
     }
 
@@ -123,32 +123,19 @@ class Cropper extends \yii\base\Widget
             $this->noPhotoImage = $assets->baseUrl . '/img/nophoto.png';
         }
 
-        $settings = array_merge([
-            'aspectRatio' => $this->aspectRatio,
-            'maxSize' => $this->maxSize,
-            'minSize' => $this->minSize,
-            'startSize' => $this->startSize,
-            'onCropStart' => $this->onCropStart,
-            'onCropMove' => $this->onCropMove,
-            'onCropEnd' => $this->onCropEnd,
-            'onInitialize' => $this->onInitialize,
-            'returnMode' => $this->returnMode,
-        ], $this->pluginOptions);
+        $settings = '
+            aspectRatio: '. Json::encode($this->aspectRatio) .',
+            maxSize: '. Json::encode($this->maxSize) .',
+            minSize: '. Json::encode($this->minSize) .',
+            startSize: '. Json::encode($this->startSize) .',
+            onCropStart: '. $this->onCropStart .',
+            onCropMove: '. $this->onCropMove .',
+            onCropEnd: '. $this->onCropEnd .',
+            onInitialize: '. $this->onInitialize .',
+            returnMode: '. Json::encode($this->returnMode) .',
+        ';
 
-        if(is_numeric($this->aspectRatio)) {
-                $settings['aspectRatio'] = $this->aspectRatio;
-        }
-
-        if ($this->onCropEnd)
-            $settings['onCropEnd'] = $this->onCropEnd;
-
-        $view->registerJs('
-croppr = new Croppr("#' . $this->elementId . '",
-  	' . Json::encode($settings) . '
-);
-		', 
-			$view::POS_READY
-        );
+        $view->registerJs('croppr = new Croppr("#' . $this->elementId . '",{' . $settings . '});', $view::POS_READY);
 
         $view->registerJs('
 var croppr;
