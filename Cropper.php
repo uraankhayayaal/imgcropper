@@ -2,6 +2,8 @@
 
 namespace uraankhay\imgcropper;
 
+use yii\helpers\Json;
+
 /**
  * This is just an example.
  */
@@ -9,8 +11,8 @@ class Cropper extends \yii\base\Widget
 {
 	public $elementId = 'crop';
 
-	public $noPhotoImage;
-	
+	public $noPhotoImage = [];
+
 	public $pluginOptions;
 	/*
 	 * Constrain the crop region to an aspect ratio.
@@ -36,7 +38,7 @@ class Cropper extends \yii\base\Widget
 	 * Example: maxSize: [100, 100, 'px'] (Min width and height of 100px)
 	 * Note: unit accepts a value of 'px' or '%'. Defaults to 'px'.
 	 */
-	public $minSize = null;
+	public $minSize = "[50, 50, 'px']";
 
 	/*
 	 * The starting size of the crop region when it is initialized.
@@ -103,7 +105,10 @@ class Cropper extends \yii\base\Widget
 
     public function run()
     {
-        return "Hello it is Cropper!";
+        $this->registerClientAssets();
+
+        return $this->render('index', [
+        ]);
     }
 
     /**
@@ -134,15 +139,25 @@ class Cropper extends \yii\base\Widget
                 $settings['aspectRatio'] = $this->aspectRatio;
         }
 
-        if ($this->onCompleteCropp)
-            $settings['onCompleteCropp'] = $this->onCompleteCropp;
+        if ($this->onCropEnd)
+            $settings['onCropEnd'] = $this->onCropEnd;
 
         $view->registerJs('
-var croppr = new Croppr("#' . $this->elementId . '", {
+croppr = new Croppr("#' . $this->elementId . '",
   	' . Json::encode($settings) . '
-});
+);
 		', 
 			$view::POS_READY
+        );
+
+        $view->registerJs('
+var croppr;
+function getCrop(){
+	var obj = croppr.getValue();
+	return JSON.stringify(obj);
+}
+        	', 
+			$view::POS_END
         );
     }
 }
