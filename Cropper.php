@@ -137,14 +137,12 @@ class Cropper extends \yii\base\Widget
 
         $view->registerJs('croppr = new Croppr("#' . $this->elementId . '",{' . $settings . '});', $view::POS_READY);
 
-        $view->registerJs('
-var croppr;
-function getCrop(){
-	var obj = croppr.getValue();
-	return JSON.stringify(obj);
-}
-        	', 
-			$view::POS_END
-        );
+   //      $view->registerJs('
+			// var croppr;
+			// function getCrop(){
+			// 	var obj = croppr.getValue();
+			// 	return JSON.stringify(obj);
+			// }
+   //      ', $view::POS_END);
     }
 }

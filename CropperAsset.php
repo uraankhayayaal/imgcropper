@@ -15,4 +15,7 @@ class CropperAsset extends AssetBundle
     public $css = [
         'dist/croppr.min.css'
     ];
+    public $depends = [
+        'uraankhay\imgcropper\CropperAppAsset',
+    ];
 }
