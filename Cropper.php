@@ -3,13 +3,19 @@
 namespace uraankhay\imgcropper;
 
 use yii\helpers\Json;
+use yii\helpers\Url;
+use yii\helpers\Html;
 
 /**
  * This is just an example.
  */
-class Cropper extends \yii\base\Widget
+class Cropper extends \yii\widgets\InputWidget
 {
-	public $elementId = 'crop';
+	public $elementId = 'uraankhay-imgcropper-crop';
+    public $fileInputId = 'uraankhay-imgcropper-fileinput-id';
+    public $filePreviewWrapperId = 'uraankhay-imgcropper-filepreview-wrapper-id';
+    public $modelThumbnailId = 'uraankhay-imgcropper-model-thumbnail-id';
+    public $uploadUrl = 'uploadImg';
 
 	public $noPhotoImage;
 
@@ -102,12 +108,26 @@ class Cropper extends \yii\base\Widget
 	 */
 	public $returnMode = "real";
 
+	// public function init()
+	// {
+	// 	parent::init();
+	// 	if ($this->label == '') {
+ //            $this->label = "Image crop";
+ //        }
+	// }
+
     public function run()
     {
+        $this->uploadUrl = Url::to(['news/uploadImg']);
         $this->registerClientAssets();
 
         return $this->render('index', [
         	'elementId' => $this->elementId,
+        	'fileInputId' => $this->fileInputId,
+        	'filePreviewWrapperId' => $this->filePreviewWrapperId,
+        	'modelThumbnailId' => $this->modelThumbnailId,
+        	'model' => $this->model,
+            'widget' => $this
         ]);
     }
 
@@ -117,11 +137,6 @@ class Cropper extends \yii\base\Widget
     public function registerClientAssets()
     {
         $view = $this->getView();
-        $assets = CropperAsset::register($view);
-
-        if ($this->noPhotoImage == '') {
-            $this->noPhotoImage = $assets->baseUrl . '/img/nophoto.png';
-        }
 
         $settings = '
             aspectRatio: '. Json::encode($this->aspectRatio) .',
@@ -135,14 +150,19 @@ class Cropper extends \yii\base\Widget
             returnMode: '. Json::encode($this->returnMode) .',
         ';
 
-        $view->registerJs('croppr = new Croppr("#' . $this->elementId . '",{' . $settings . '});', $view::POS_READY);
+        $view->registerJs('
+        	var uraankhay_imgcropper_settings = {' . $settings . '}; 
+        	var uraankhay_imgcropper_id = '.Json::encode($this->elementId).'; 
+        	var uraankhay_imgcropper_fileinput_id = '.Json::encode($this->fileInputId).';
+        	var uraankhay_imgcropper_model_attribute_field_id = '.Json::encode(Html::getInputId($this->model, $this->attribute)).';
+        	var uraankhay_imgcropper_modelThumbnail_id = '.Json::encode($this->modelThumbnailId).'; 
+        	var uraankhay_imgcropper_url = '.Json::encode($this->uploadUrl).';
+        	var uraankhay_imgcropper_filepreview_wrapper_id = '.Json::encode($this->filePreviewWrapperId).';
+        ', $view::POS_BEGIN);
 
-   //      $view->registerJs('
-			// var croppr;
-			// function getCrop(){
-			// 	var obj = croppr.getValue();
-			// 	return JSON.stringify(obj);
-			// }
-   //      ', $view::POS_END);
+        $assets = CropperAsset::register($view);
+        if ($this->noPhotoImage == '') {
+            $this->noPhotoImage = $assets->baseUrl . '/img/nophoto.png';
+        }
     }
 }

@@ -1,5 +1,24 @@
-<h3>Hello it is Cropper!</h3>	
-<img src="https://www.elephantvoices.org/images/stories/databases/call_types_front_750w.jpg" id="<?= $elementId ?>"/>
-<span class="btn" onclick="alert(getCrop());">Обрезать</span>
-<!-- <span id="uraankhay-imgcropper-fileinput" class="btn">Выбрать файл</span> -->
-<input type="file" id="uraankhay-imgcropper-fileinput" name="file" multiple>
+<?php
+use yii\helpers\Html;
+?>
+
+<?= Html::activeHiddenInput($model, $widget->attribute, ['class' => 'photo-field']); ?>
+<div>
+	<p><?= Html::img(
+	    $model->{$widget->attribute} != ''
+	        ? $model->{$widget->attribute}
+	        : $widget->noPhotoImage,
+	    [
+	    	'style' => 'max-width: 100%;',
+	        'id' => $modelThumbnailId,
+	        'class' => 'thumbnail',
+	        'data-no-photo' => $widget->noPhotoImage,
+	    ]
+	); ?></p>
+	<p>
+		<span class="btn" onclick="getUraankhayImgDelete(<?= '\''.Html::getInputId($model, $widget->attribute).'\''; ?>)">Удалить</span>
+	</p>
+</div>
+
+<p><input type="file" id="<?= $fileInputId ?>" name="file" multiple></p>
+<div id="<?= $filePreviewWrapperId ?>"></div>

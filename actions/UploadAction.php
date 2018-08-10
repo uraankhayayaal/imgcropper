@@ -1,6 +1,6 @@
 <?php
 
-namespace budyaga\cropper\actions;
+namespace uraankhay\imgcropper\actions;
 
 use yii\base\Action;
 use yii\base\DynamicModel;
@@ -8,7 +8,6 @@ use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 use yii\web\UploadedFile;
-use budyaga\cropper\Widget;
 use yii\imagine\Image;
 use Imagine\Image\Box;
 use Yii;
@@ -20,24 +19,23 @@ class UploadAction extends Action
     public $uploadParam = 'file';
     public $maxSize = 2097152;
     public $extensions = 'jpeg, jpg, png, gif';
-    public $width = 200;
-    public $height = 200;
     public $jpegQuality = 100;
     public $pngCompressionLevel = 1;
+    public $width = 100;
+    public $height = 100;
 
     /**
      * @inheritdoc
      */
     public function init()
     {
-        Widget::registerTranslations();
         if ($this->url === null) {
-            throw new InvalidConfigException(Yii::t('cropper', 'MISSING_ATTRIBUTE', ['attribute' => 'url']));
+            throw new InvalidConfigException('MISSING_ATTRIBUTE');
         } else {
             $this->url = rtrim($this->url, '/') . '/';
         }
         if ($this->path === null) {
-            throw new InvalidConfigException(Yii::t('cropper', 'MISSING_ATTRIBUTE', ['attribute' => 'path']));
+            throw new InvalidConfigException('MISSING_ATTRIBUTE');
         } else {
             $this->path = rtrim(Yii::getAlias($this->path), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         }
@@ -53,9 +51,9 @@ class UploadAction extends Action
             $model = new DynamicModel(compact($this->uploadParam));
             $model->addRule($this->uploadParam, 'image', [
                 'maxSize' => $this->maxSize,
-                'tooBig' => Yii::t('cropper', 'TOO_BIG_ERROR', ['size' => $this->maxSize / (1024 * 1024)]),
+                'tooBig' => 'TOO_BIG_ERROR',
                 'extensions' => explode(', ', $this->extensions),
-                'wrongExtension' => Yii::t('cropper', 'EXTENSION_ERROR', ['formats' => $this->extensions])
+                'wrongExtension' => 'EXTENSION_ERROR'
             ])->validate();
 
             if ($model->hasErrors()) {
@@ -68,19 +66,21 @@ class UploadAction extends Action
 
                 $width = $request->post('width', $this->width);
                 $height = $request->post('height', $this->height);
+                $x = $request->post('x', 0);
+                $y = $request->post('y', 0);
 
                 $image = Image::crop(
                     $file->tempName . $request->post('filename'),
-                    intval($request->post('w')),
-                    intval($request->post('h')),
-                    [$request->post('x'), $request->post('y')]
-                )->resize(
+                    intval($width),
+                    intval($height),
+                    [$x<0?0:$x, $y<0?0:$y]
+                )/*->resize(
                     new Box($width, $height)
-                );
+                )*/;
 
                 if (!file_exists($this->path) || !is_dir($this->path)) {
                     $result = [
-                        'error' => Yii::t('cropper', 'ERROR_NO_SAVE_DIR')]
+                        'error' => 'ERROR_NO_SAVE_DIR']
                     ;
                 } else {
                     $saveOptions = ['jpeg_quality' => $this->jpegQuality, 'png_compression_level' => $this->pngCompressionLevel];
@@ -90,7 +90,7 @@ class UploadAction extends Action
                         ];
                     } else {
                         $result = [
-                            'error' => Yii::t('cropper', 'ERROR_CAN_NOT_UPLOAD_FILE')
+                            'error' => 'ERROR_CAN_NOT_UPLOAD_FILE'
                         ];
                     }
                 }
@@ -99,7 +99,7 @@ class UploadAction extends Action
 
             return $result;
         } else {
-            throw new BadRequestHttpException(Yii::t('cropper', 'ONLY_POST_REQUEST'));
+            throw new BadRequestHttpException('ONLY_POST_REQUEST');
         }
     }
 }
