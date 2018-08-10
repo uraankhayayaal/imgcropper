@@ -28,4 +28,14 @@ Usage
 Once the extension is installed, simply use it in your code by  :
 
 ```php
-<?= \uraankhay\imgcropper\Cropper::widget(); ?>```
+<?= \uraankhay\imgcropper\Cropper::widget(); ?>
+```
+
+```php
+<?= $form->field($model, 'photo')->widget(\uraankhay\imgcropper\Cropper::className(), [
+        'aspectRatio' => 500/700,
+        'maxSize' => [700, 500, 'px'],
+        'minSize' => [10, 10, 'px'],
+        'startSize' => [100, 100, '%'],
+    ]); ?>
+```
