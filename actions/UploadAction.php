@@ -78,21 +78,18 @@ class UploadAction extends Action
                     new Box($width, $height)
                 )*/;
 
-                if (!file_exists($this->path) || !is_dir($this->path)) {
+                if (!file_exists($this->path) || !is_dir($this->path))
+                    \yii\helpers\FileHelper::createDirectory($this->path, $mode = 0775, $recursive = true);
+
+                $saveOptions = ['jpeg_quality' => $this->jpegQuality, 'png_compression_level' => $this->pngCompressionLevel];
+                if ($image->save($this->path . $model->{$this->uploadParam}->name, $saveOptions)) {
                     $result = [
-                        'error' => 'ERROR_NO_SAVE_DIR']
-                    ;
+                        'filelink' => $this->url . $model->{$this->uploadParam}->name
+                    ];
                 } else {
-                    $saveOptions = ['jpeg_quality' => $this->jpegQuality, 'png_compression_level' => $this->pngCompressionLevel];
-                    if ($image->save($this->path . $model->{$this->uploadParam}->name, $saveOptions)) {
-                        $result = [
-                            'filelink' => $this->url . $model->{$this->uploadParam}->name
-                        ];
-                    } else {
-                        $result = [
-                            'error' => 'ERROR_CAN_NOT_UPLOAD_FILE'
-                        ];
-                    }
+                    $result = [
+                        'error' => 'ERROR_CAN_NOT_UPLOAD_FILE'
+                    ];
                 }
             }
             Yii::$app->response->format = Response::FORMAT_JSON;
