@@ -118,7 +118,7 @@ class Cropper extends \yii\widgets\InputWidget
 
     public function run()
     {
-        $this->uploadUrl = Url::to(['news/uploadImg']);
+        // $this->uploadUrl = Url::to(['news/uploadImg']);
         $this->registerClientAssets();
 
         return $this->render('index', [
